@@ -13,6 +13,7 @@ jobs:
   displayName: Build 
   pool: pool-agent
   steps:
+  - script: powershell -command "Write-Output 'Installing Terraform...'"
   - task: TerraformInstaller@1
     displayName: Terraform Install
     inputs:
