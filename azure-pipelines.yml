@@ -46,8 +46,8 @@ jobs:
       workingDirectory: $(path)
       environmentServiceNameAzureRM: 'new-todo-yaml-pipeline-latest'
    
-- job: Scanning Job
-  displayName: Scanning Tool
+- job: Scanning_Job
+  displayName: ScanningTool
   pool: pool-agent
   steps:
   - task: tfsec@1
