@@ -9,18 +9,6 @@ variables:
   
 
 jobs:
-- job: diagnose_agent
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-    - script: |
-        echo "Shell: $SHELL"
-        which bash
-        bash --version
-        uname -a
-        env
-      displayName: 'Agent Diagnostic'
-
 - job: terraform_install_and_init_and_fmt
   displayName: Build 
   pool:
