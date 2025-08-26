@@ -11,7 +11,8 @@ variables:
 jobs:
 - job: terraform_install_and_init_and_fmt
   displayName: Build 
-  pool: Azure Pipelines
+  pool:
+    vmImage: 'ubuntu-latest'
   steps:
   - task: Bash@3
     displayName: 'Install unzip'
