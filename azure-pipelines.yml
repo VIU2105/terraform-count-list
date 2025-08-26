@@ -13,7 +13,7 @@ jobs:
   displayName: Build 
   pool: Azure Pipelines
   steps:
-  - script: powershell -command "Write-Output 'Installing Terraform...'"
+  #- script: powershell -command "Write-Output 'Installing Terraform...'"
   - task: TerraformInstaller@1
     displayName: Terraform Install
     inputs:
