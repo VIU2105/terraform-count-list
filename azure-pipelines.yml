@@ -11,7 +11,7 @@ variables:
 jobs:
 - job: terraform_install_and_init_and_fmt
   displayName: Build 
-  pool: pool-agent
+  pool: Azure Pipelines
   steps:
   - script: powershell -command "Write-Output 'Installing Terraform...'"
   - task: TerraformInstaller@1
@@ -55,4 +55,14 @@ jobs:
     inputs:
       version: 'v1.26.0'
       dir: 'Count with List'
-  
+- job: Deploy
+  displayName: Deploy the Infra
+  pool: pool-agent
+  dependsOn: terraform_install_and_init_and_fmt
+  steps:
+  - task: TerraformTask@5
+    inputs:
+      provider: 'azurerm'
+      command: 'apply'
+      workingDirectory: $(path)
+      environmentServiceNameAzureRM: 'new-todo-yaml-pipeline-latest'
