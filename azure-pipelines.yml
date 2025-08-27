@@ -14,10 +14,16 @@ jobs:
   pool:
     vmImage: 'ubuntu-latest'
   steps:
-  - task: Unzip@1
+  - task: Bash@3
+    displayName: Install the Unzip
     inputs:
-      ItemSpec: '**/*.zip'
-      destination: '$(System.DefaultWorkingDirectory)'
+      targetType: 'inline'
+      script: |
+        # Write your commands here
+        
+        sudo apt-get update
+        sudo apt-get install -y unzip
+      workingDirectory: '$(System.DefaultWorkingDirectory)'
   - task: TerraformInstaller@1
     displayName: Terraform Install
     inputs:
