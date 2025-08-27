@@ -4,8 +4,17 @@ trigger:
      - main
      - features/*
 
+parameters:
+- name: WorkingDir
+  displayName: Running from which Dir
+  type: string
+  default: 
+  values:
+    - Count with List
+    - Count Meta Argument
+
 variables:
-  path: '$(System.DefaultWorkingDirectory)/Count with List'
+  path: '$(System.DefaultWorkingDirectory)/${{ parameters.WorkingDir }}'
   
 stages:
   - stage: Build
