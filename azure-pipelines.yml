@@ -14,6 +14,10 @@ jobs:
   pool:
     vmImage: 'ubuntu-latest'
   steps:
+  - task: Unzip@1
+    inputs:
+      ItemSpec: '**/*.zip'
+      destination: '$(System.DefaultWorkingDirectory)'
   - task: TerraformInstaller@1
     displayName: Terraform Install
     inputs:
