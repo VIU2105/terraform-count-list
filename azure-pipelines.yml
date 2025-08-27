@@ -7,72 +7,83 @@ trigger:
 variables:
   path: '$(System.DefaultWorkingDirectory)/Count with List'
   
+stages:
+  - stage: Build
+    jobs:
+    - job: BuildJob
+      displayName: terraform_install_and_init_and_fmt
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      - task: Bash@3
+        displayName: Install the Unzip
+        inputs:
+          targetType: 'inline'
+          script: |
+            # Write your commands here
+            
+            sudo apt-get update
+            sudo apt-get install -y unzip
+          workingDirectory: '$(System.DefaultWorkingDirectory)'
+      - task: TerraformInstaller@1
+        condition: always()
+        displayName: Terraform Install
+        inputs:
+          terraformVersion: 'latest'
+      - task: TerraformTask@5
+        condition: always()
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          workingDirectory: $(path)
+          backendServiceArm: 'new-todo-yaml-pipeline-latest'
+          backendAzureRmStorageAccountName: 'storagesliku22082025'
+          backendAzureRmContainerName: 'tfstate'
+          backendAzureRmKey: 'terraform.tfstate'
+      - task: TerraformTask@5 
+        condition: always()
+        inputs:
+          provider: 'azurerm'
+          command: 'custom'
+          workingDirectory: $(path)
+          outputTo: 'console'
+          customCommand: 'fmt'
+          environmentServiceNameAzureRM: 'new-todo-yaml-pipeline-latest'
+      - task: TerraformTask@5
+        condition: always()
+        inputs:
+          provider: 'azurerm'
+          command: 'validate'
+          workingDirectory: $(path)
+      - task: TerraformTask@5
+        condition: always()
+        inputs:
+          provider: 'azurerm'
+          command: 'plan'
+          workingDirectory: $(path)
+          environmentServiceNameAzureRM: 'new-todo-yaml-pipeline-latest'
 
-jobs:
-- job: terraform_install_and_init_and_fmt
-  displayName: Build 
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-  - task: Bash@3
-    displayName: Install the Unzip
-    inputs:
-      targetType: 'inline'
-      script: |
-        # Write your commands here
-        
-        sudo apt-get update
-        sudo apt-get install -y unzip
-      workingDirectory: '$(System.DefaultWorkingDirectory)'
-  - task: TerraformInstaller@1
-    displayName: Terraform Install
-    inputs:
-      terraformVersion: 'latest'
-  - task: TerraformTask@5
-    inputs:
-      provider: 'azurerm'
-      command: 'init'
-      workingDirectory: $(path)
-      backendServiceArm: 'new-todo-yaml-pipeline-latest'
-      backendAzureRmStorageAccountName: 'storagesliku22082025'
-      backendAzureRmContainerName: 'tfstate'
-      backendAzureRmKey: 'terraform.tfstate'
-  - task: TerraformTask@5 
-    inputs:
-      provider: 'azurerm'
-      command: 'custom'
-      workingDirectory: $(path)
-      outputTo: 'console'
-      customCommand: 'fmt'
-      environmentServiceNameAzureRM: 'new-todo-yaml-pipeline-latest'
-  - task: TerraformTask@5
-    inputs:
-      provider: 'azurerm'
-      command: 'validate'
-      workingDirectory: $(path)
-  - task: TerraformTask@5
-    inputs:
-      provider: 'azurerm'
-      command: 'plan'
-      workingDirectory: $(path)
-      environmentServiceNameAzureRM: 'new-todo-yaml-pipeline-latest'
-   
-- job: Scanning_Job
-  displayName: ScanningTool
-  pool: pool-agent
-  steps:
-  - task: tfsec@1
-    inputs:
-      version: 'v1.26.0'
-      dir: 'Count with List'
-- job: Deploy
-  displayName: Deploy the Infra
-  pool: pool-agent
-  dependsOn: terraform_install_and_init_and_fmt
-  steps:
-  - task: TerraformTask@5
-    inputs:
-      provider: 'azurerm'
-      command: 'apply'
-      workingDirectory: $(path)
-      environmentServiceNameAzureRM: 'new-todo-yaml-pipeline-latest'
+  - stage: Testing_and_Scanning
+    jobs:
+    - job: Scanning_job
+      displayName: ScanningTool
+      pool: pool-agent
+      steps:
+      - task: tfsec@1
+        inputs:
+          version: 'v1.26.0'
+          dir: 'Count with List' 
+
+  - stage: Deploy
+    jobs:
+    - job: Deployjob 
+      displayName: Deploy the Infra
+      pool: pool-agent
+      # dependsOn: terraform_install_and_init_and_fmt
+      steps:
+      - task: TerraformTask@5
+        inputs:
+          provider: 'azurerm'
+          command: 'apply'
+          workingDirectory: $(path)
+          environmentServiceNameAzureRM: 'new-todo-yaml-pipeline-latest'
